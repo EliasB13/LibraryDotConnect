@@ -1,6 +1,7 @@
 ﻿using Devart.Data.SQLite;
 using LibraryDotConnect.Data;
 using LibraryDotConnect.Data.Entities;
+using LibraryDotConnect.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,15 +23,18 @@ namespace LibraryDotConnect.ConsoleMenu
 		{
 			Console.Clear();
 
-			EnterBookTitle();
-			EnterBookYear();
-			EnterAuthor();
+			if (EnterBookTitle() == MenuExitFlag.ReturnToPreviousMenu)
+				return;
+			if (EnterBookYear() == MenuExitFlag.ReturnToPreviousMenu)
+				return;
+			if (EnterAuthor() == MenuExitFlag.ReturnToPreviousMenu)
+				return;
 
 			booksRepository.Create(book);
 			PrintSuccess();
 		}
 
-		public void EnterBookTitle()
+		public MenuExitFlag EnterBookTitle()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -39,12 +43,14 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 
 			book.Title = input;
+
+			return MenuExitFlag.None;
 		}
 
-		public void EnterBookYear()
+		public MenuExitFlag EnterBookYear()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -53,7 +59,7 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 			else if (!short.TryParse(input, out short inputYear))
 			{
 				Console.Clear();
@@ -63,9 +69,11 @@ namespace LibraryDotConnect.ConsoleMenu
 			}
 			else 
 				book.Year = inputYear;
+
+			return MenuExitFlag.None;
 		}
 
-		public void EnterAuthor()
+		public MenuExitFlag EnterAuthor()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -84,7 +92,7 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 			else if (!short.TryParse(input, out short authorIndex) || authorIndex < 0 || authorIndex >= authors.Count)
 			{
 				Console.Clear();
@@ -97,6 +105,8 @@ namespace LibraryDotConnect.ConsoleMenu
 				book.Authors = new List<Author>();
 				book.Authors.Add(authors[authorIndex]);
 			}
+
+			return MenuExitFlag.None;
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using Devart.Data.SQLite;
 using LibraryDotConnect.Data;
 using LibraryDotConnect.Data.Entities;
+using LibraryDotConnect.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,8 @@ namespace LibraryDotConnect.ConsoleMenu
 			else
 			{
 				BookToUpdate = Books[choiceIndex];
-				PrintUpdateMenu();
+				if (PrintUpdateMenu() == MenuExitFlag.ReturnToPreviousMenu)
+					return;
 			}
 		}
 
@@ -66,19 +68,22 @@ namespace LibraryDotConnect.ConsoleMenu
 			Console.WriteLine("\nType 'back' to return");
 		}
 
-		public void PrintUpdateMenu()
+		public MenuExitFlag PrintUpdateMenu()
 		{
 			Console.Clear();
 
-			EnterBookTitle();
-			EnterBookYear();
-			EnterAuthor();
+			if (EnterBookTitle() == MenuExitFlag.ReturnToPreviousMenu)
+				return MenuExitFlag.ReturnToPreviousMenu;
+			if (EnterBookYear() == MenuExitFlag.ReturnToPreviousMenu)
+				return MenuExitFlag.ReturnToPreviousMenu;
 
 			booksRepository.Update(BookToUpdate);
 			PrintSuccess();
+
+			return MenuExitFlag.None;
 		}
 
-		public void EnterBookTitle()
+		public MenuExitFlag EnterBookTitle()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -88,12 +93,13 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 
 			BookToUpdate.Title = input;
+			return MenuExitFlag.None;
 		}
 
-		public void EnterBookYear()
+		public MenuExitFlag EnterBookYear()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -103,7 +109,7 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 			else if (!short.TryParse(input, out short inputYear))
 			{
 				Console.Clear();
@@ -113,9 +119,11 @@ namespace LibraryDotConnect.ConsoleMenu
 			}
 			else
 				BookToUpdate.Year = inputYear;
+
+			return MenuExitFlag.None;
 		}
 
-		public void EnterAuthor()
+		public MenuExitFlag EnterAuthor()
 		{
 			Console.Clear();
 			Console.WriteLine(Title + "\n");
@@ -134,7 +142,7 @@ namespace LibraryDotConnect.ConsoleMenu
 
 			string input = Console.ReadLine();
 			if (input == "back")
-				return;
+				return MenuExitFlag.ReturnToPreviousMenu;
 			else if (!short.TryParse(input, out short authorIndex) || authorIndex < 0 || authorIndex >= authors.Count)
 			{
 				Console.Clear();
@@ -147,6 +155,8 @@ namespace LibraryDotConnect.ConsoleMenu
 				BookToUpdate.Authors = new List<Author>();
 				BookToUpdate.Authors.Add(authors[authorIndex]);
 			}
+
+			return MenuExitFlag.None;
 		}
 	}
 }
